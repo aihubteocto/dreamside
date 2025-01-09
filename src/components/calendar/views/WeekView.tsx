@@ -85,7 +85,7 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
         })}
       </div>
       
-      <div className="grid grid-cols-8 bg-secondary rounded-3xl"  >
+      <div className="grid grid-cols-8 bg-secondary rounded-3xl h-[calc(100vh-16rem)] overflow-y-auto scrollbar-none"  >
         <div className="border-r border-gray-100 p-10 pb-0 " >
         {/*to have height: <div className="grid grid-cols-8 bg-secondary pr-10 max-h-[1000px] overflow-y-auto">
         <div className="border-r border-gray-100 p-10"> */}

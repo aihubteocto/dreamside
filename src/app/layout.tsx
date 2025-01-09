@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
-import { Inter } from "next/font/google";  // Replace Geist import
+import { Outfit } from "next/font/google";  // Replace Inter import
 
 import { type Metadata } from "next";
 import { Navbar } from "@/components/layout/navbar"; // Import the Navbar component
@@ -13,18 +13,19 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });  // Initialize Inter
-
+const outfit = Outfit({ 
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-outfit",
+});
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable}`}> 
-      <body>
-        <Navbar />
+    <html lang="en" className={`${outfit.variable}`}>
+      <body className={`${GeistSans.className}`}>
         {children}
-        <Footer />
       </body>
     </html>
   );

@@ -9,11 +9,18 @@ import { toast } from "@/components/ui/use-toast";
 import { startOfWeek, endOfWeek, addDays, subDays, addWeeks, subWeeks, addMonths, subMonths } from "date-fns";
 import { TaskSidebar } from "@/components/TaskSidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>("week");
   const [events, setEvents] = useState<CalendarEvent[]>(mockEvents);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newTask, setNewTask] = useState({ title: "", tag: "personal", period: "day" });
 
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -82,11 +89,21 @@ const Index = () => {
     }
   };
 
+  const handleAddTask = () => {
+    // Logic to add the new task
+    setDialogOpen(false);
+  };
+
   return (
     <div className="flex h-screen bg-white  font-outfit">
-            <TaskSidebar /> {/* Add the TaskSidebar here */}
-
+      <TaskSidebar /> {/* Add the TaskSidebar here */}
       <div className="flex-1 flex flex-col  bg-white">
+        <div className="flex items-center justify-between p-4">
+          <h1 className="text-2xl font-semibold">Calendar</h1>
+          <Button variant="ghost" size="icon" onClick={() => setDialogOpen(true)}>
+            <Plus className="h-6 w-6" />
+          </Button>
+        </div>
         <CalendarHeader
           currentDate={currentDate}
           view={view}
@@ -103,6 +120,49 @@ const Index = () => {
           view={view}
         />
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+            <DialogDescription>Fill in the details below to add a new task.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input 
+              placeholder="Title" 
+              value={newTask.title} 
+              onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} 
+            />
+            <Select 
+              value={newTask.tag} 
+              onValueChange={(value) => setNewTask({ ...newTask, tag: value })}
+            >
+              <SelectTrigger>Tag</SelectTrigger>
+              <SelectContent>
+                <SelectItem value="personal">Personal</SelectItem>
+                <SelectItem value="work">Work</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select 
+              value={newTask.period} 
+              onValueChange={(value) => setNewTask({ ...newTask, period: value })}
+            >
+              <SelectTrigger>Period</SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Day</SelectItem>
+                <SelectItem value="week">Week</SelectItem>
+                <SelectItem value="month">Month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleAddTask}>Add Task</Button>
+            <DialogClose asChild>
+              <Button variant="ghost">Cancel</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

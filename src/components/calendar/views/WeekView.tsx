@@ -35,9 +35,11 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
 
   const getEventStyle = (event: CalendarEvent) => {
     const startHour = event.start.getHours();
+    const startMinutes = event.start.getMinutes();
     const endHour = event.end.getHours();
-    const duration = endHour - startHour;
-    const top = `${startHour * 5}rem`;
+    const endMinutes = event.end.getMinutes();
+    const duration = ((endHour * 60 + endMinutes) - (startHour * 60 + startMinutes)) / 60;
+    const top = `${(startHour * 60 + startMinutes) / 60 * 5}rem`;
     const height = `${duration * 5}rem`;
     
     return {
@@ -102,7 +104,7 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
       
       {/* Main Grid with Scroll Reference */}
       <div
-        className="grid grid-cols-8 rounded-3xl bg-secondary h-[calc(100vh-16rem)] overflow-y-auto scrollbar-none relative z-10"
+        className="grid grid-cols-8 rounded-3xl  h-[calc(100vh-16rem)] overflow-y-auto scrollbar-none relative z-10"
         ref={scrollContainerRef}
       >
         {/* Hour Labels */}
@@ -159,7 +161,7 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
                   key={event.id}
                   style={getEventStyle(event)}
                   className={cn(
-                    "rounded-lg p-2 border text-sm overflow-hidden",
+                    "rounded-lg p-2 mt-14 border text-sm overflow-hidden",
                     categoryColors[event.category]
                   )}
                 >

@@ -2,7 +2,7 @@
 import { TaskColumn } from "./TaskColumn"
 import { useState } from "react"
 
-export type TaskStatus = 'todo' | 'in-progress' | 'in-review' | 'done'
+export type TaskStatus = 'todo' | 'in-progress' | 'done'
 
 export type ProjectTask = {
   id: string
@@ -40,18 +40,6 @@ const INITIAL_TASKS: Record<TaskStatus, ProjectTask[]> = {
       attachments: 1,
     }
   ],
-  'in-review': [
-    {
-      id: '3',
-      title: 'Create Odych app prototype for Get notification in figma',
-      description: '',
-      tags: ['mobile app', 'client'],
-      progress: 60,
-      assignees: ['1'],
-      comments: 12,
-      attachments: 8,
-    }
-  ],
   'done': [
     {
       id: '4',
@@ -84,11 +72,6 @@ export function ProjectTaskBoard({ projectId }: ProjectTaskBoardProps) {
         title="In Progress" 
         tasks={tasks["in-progress"]}
         status="in-progress"
-      />
-      <TaskColumn 
-        title="In Review" 
-        tasks={tasks["in-review"]}
-        status="in-review"
       />
       <TaskColumn 
         title="Done" 

@@ -66,9 +66,9 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen bg-secondary font-outfit">
+    <div className="flex h-screen bg-white  font-outfit">
       
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col  bg-white">
         <CalendarHeader
           currentDate={currentDate}
           view={view}

@@ -30,6 +30,44 @@ const mockProjects: Project[] = [
       { id: '1', avatar: 'https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes-thumbnail.png' },
     ],
   },
+
+  {
+    id: '2',
+    title: 'Video Campaign',
+    description: '- Application Concept\n- Website Concept',
+    progress: 65,
+    totalTasks: 12,
+    completedTasks: 8,
+    lastActivity: '16/02/2025',
+    team: [
+      { id: '1', avatar: 'https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes-thumbnail.png' },
+    ],
+  },
+
+  {
+    id: '3',
+    title: 'Video Campaign',
+    description: '- Application Concept\n- Website Concept',
+    progress: 65,
+    totalTasks: 12,
+    completedTasks: 8,
+    lastActivity: '16/02/2025',
+    team: [
+      { id: '1', avatar: 'https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes-thumbnail.png' },
+    ],
+  },
+  {
+    id: '4',
+    title: 'Video Campaign',
+    description: '- Application Concept\n- Website Concept',
+    progress: 65,
+    totalTasks: 12,
+    completedTasks: 8,
+    lastActivity: '16/02/2025',
+    team: [
+      { id: '1', avatar: 'https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes-thumbnail.png' },
+    ],
+  },
   // ... other mock projects ...
 ]
 

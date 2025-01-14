@@ -2,7 +2,7 @@ import { CalendarEvent } from "@/lib/types";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { AddEventDialog } from "../AddEventDialog";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -23,6 +23,8 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const weekStart = startOfWeek(currentDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -59,10 +61,23 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
     setSelectedDay(day);
   };
 
+  // Scroll to current hour on mount
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const currentHour = new Date().getHours();
+      const scrollPosition = currentHour * 80; // Assuming each hour row is 5rem (80px)
+      scrollContainerRef.current.scrollTo({
+        top: scrollPosition - 80, // Adjust to position current hour at the top
+        behavior: 'smooth'
+      });
+    }
+  }, []);
+
   return (
-    <div className="flex-1 overflow-auto px-14 " >
-      <div className="grid grid-cols-8 gap-2  mb-4">
-      <div className="p-4 flex items-center justify-center">
+    <div className="flex-1 overflow-auto px-14 relative">
+      {/* Header */}
+      <div className="grid grid-cols-8 gap-2 mb-4 relative z-10">
+        <div className="p-4 flex items-center justify-center">
           <CalendarIcon className="w-6 h-6 text-secondary-dark" />
         </div>
         {weekDays.map((day) => {
@@ -74,45 +89,49 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
               onClick={() => handleDayClick(day)}
               className={cn(
                 "py-4 px-2 text-center rounded-2xl font-medium transition-colors mb-5",
-                isSelected ? "bg-secondary-dark text-white" : "bg-secondary hover:bg-secondary/80",
-                isToday && !isSelected && "border-2 border-secondary-dark"
+                isSelected ? "text-secondary-dark" : "text-[#dccbc1] hover:bg-secondary/80",
+                isToday && !isSelected && "text-black"
               )}
             >
+              <div className="text-4xl font-bold">{format(day, 'd')}</div>
               <div className="text-sm mb-1">{format(day, 'EEEE')}</div>
-              <div className="text-3xl font-bold">{format(day, 'd')}</div>
             </button>
           );
         })}
       </div>
       
-      <div className="grid grid-cols-8 bg-secondary rounded-3xl h-[calc(100vh-16rem)] overflow-y-auto scrollbar-none"  >
-        <div className="border-r border-gray-100 p-10 pb-0 " >
-        {/*to have height: <div className="grid grid-cols-8 bg-secondary pr-10 max-h-[1000px] overflow-y-auto">
-        <div className="border-r border-gray-100 p-10"> */}
+      {/* Main Grid with Scroll Reference */}
+      <div
+        className="grid grid-cols-8 rounded-3xl bg-secondary h-[calc(100vh-16rem)] overflow-y-auto scrollbar-none relative z-10"
+        ref={scrollContainerRef}
+      >
+        {/* Hour Labels */}
+        <div className="p-10 pb-0">
           {hours.map((hour) => (
             <div
               key={hour}
-              className="h-20 p-2 text-sm text-gray-500 font-outfit"
+              className="h-20 p-2 text-sm text-gray-500 font-outfit flex justify-end pr-4 border-gray-200"
             >
               {`${hour}:00`}
             </div>
           ))}
         </div>
         
+        {/* Day Columns */}
         {weekDays.map((day) => {
           const isSelected = selectedDay && isSameDay(day, selectedDay);
           return (
             <div 
               key={day.toString()} 
               className={cn(
-                "relative border-b border-gray-100 px-10",
-                isSelected ? "bg-primary/10" : ""
+                "relative px-10",
+                isSelected ? "bg-secondary" : ""
               )}
             >
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="h-20 relative group"
+                  className="h-20 relative group "
                 >
                   <Popover>
                     <PopoverTrigger asChild>
@@ -157,6 +176,27 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
           );
         })}
       </div>
+      {/* Extra Row with 2 Columns */}
+      {/* <div className="grid grid-cols-2 gap-4 mt-4 mb-4">
+        <div className="p-4 bg-white rounded-lg shadow">
+          <h2 className="text-lg font-semibold">Column 1</h2>
+          <p>Additional information or components can go here.</p>
+          <p>Additional information or components can go here.</p>
+          <p>Additional information or components can go here.</p>
+          <p>Additional information or components can go here.</p>
+
+          <p>Additional information or components can go here.</p>
+          <p>Additional information or components can go here.</p>
+          <p>Additional information or components can go here.</p>
+          <p>Additional information or components can go here.</p>
+          <p>Additional information or components can go here.</p>
+          
+        </div>
+        <div className="p-4 bg-white rounded-lg shadow">
+          <h2 className="text-lg font-semibold">Column 2</h2>
+          <p>Additional information or components can go here.</p>
+        </div>
+      </div> */}
     </div>
   );
 }

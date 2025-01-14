@@ -54,10 +54,10 @@ export function DayView({ currentDate, events }: DayViewProps) {
   };
 
   return (
-    <div className="flex flex-col px-14">
+    <div className="flex flex-col px-4 sm:px-14">
       {/* Week days header */}
-      <div className="grid grid-cols-8 gap-2  mb-4">
-      <div className="p-4 flex items-center justify-center">
+      <div className="grid grid-cols-8 gap-2 mb-4">
+        <div className="p-4 flex items-center justify-center">
           <CalendarIcon className="w-6 h-6 text-secondary-dark" />
         </div>
         {weekDays.map((day, index) => {
@@ -70,16 +70,16 @@ export function DayView({ currentDate, events }: DayViewProps) {
                 isCurrentDay ? "bg-secondary-dark text-white" : "bg-secondary"
               )}
             >
+              <div className="text-4xl font-bold">{format(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - currentDate.getDay() + index), 'd')}</div>
               <div className="text-sm mb-1">{day}</div>
-              <div className="text-3xl font-bold">{format(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - currentDate.getDay() + index), 'd')}</div>
             </div>
           );
         })}
       </div>
 
       {/* Time grid */}
-      <div className="grid grid-cols-[100px_1fr]">
-        <div className=" border-gray-100">
+      <div className="grid grid-cols-[60px_1fr] bg-secondary rounded-3xl h-auto overflow-y-auto scrollbar-none">
+        <div className="border-r border-gray-100">
           {hours.map((hour) => (
             <div key={hour} className="h-20 p-2 text-sm text-gray-500 font-outfit">
               {`${hour}:00`}
@@ -130,6 +130,15 @@ export function DayView({ currentDate, events }: DayViewProps) {
           ))}
         </div>
       </div>
+
+      {/* AddEventDialog for mobile can also be styled if needed */}
+      {selectedSlot && (
+        <AddEventDialog 
+          open={dialogOpen} 
+          onOpenChange={setDialogOpen}
+          defaultDate={selectedSlot}
+        />
+      )}
     </div>
   );
 }

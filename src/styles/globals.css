@@ -136,3 +136,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 input[type="time"] {
   min-width: 80px;
 }
+
+input[type="checkbox"] {
+  background-color: transparent !important; /* Set background to transparent */
+  border: 2px solid #272727; /* Set border width to 2px and specify color */
+}
+

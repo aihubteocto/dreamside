@@ -11,11 +11,12 @@ interface MonthViewProps {
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-const categoryColors = {
+const categoryColors: Record<CalendarEvent['category'], string> = {
   work: 'bg-blue-100 border-blue-200',
   personal: 'bg-yellow-100 border-yellow-200',
-  health: 'bg-pink-100 border-pink-200'
+  health: 'bg-pink-100 border-pink-200',
 };
+
 
 export function MonthView({ currentDate, events }: MonthViewProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);

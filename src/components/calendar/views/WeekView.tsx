@@ -13,12 +13,12 @@ interface WeekViewProps {
 
 const hours = Array.from({ length: 24 }, (_, i) => i);
 
-const eventColors = {
-  work: 'blue',
-  personal: 'green',
-  health: 'purple',
-  other: 'orange'
+const eventColors: Record<CalendarEvent['category'], string> = {
+  work: 'bg-blue-100 border-blue-200',
+  personal: 'bg-yellow-100 border-yellow-200',
+  health: 'bg-pink-100 border-pink-200',
 };
+
 
 export function WeekView({ currentDate, events }: WeekViewProps) {
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);

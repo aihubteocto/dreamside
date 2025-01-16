@@ -9,7 +9,7 @@ export interface CalendarEvent {
   title: string;
   start: Date;
   end: Date;
-  category: 'work' | 'personal' | 'health' | 'other';
+  category: string;
   location?: string;
   description?: string;
   attendees?: Attendee[];

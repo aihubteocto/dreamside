@@ -13,11 +13,12 @@ interface DayViewProps {
 
 const hours = Array.from({ length: 24 }, (_, i) => i);
 
-const categoryColors = {
+const categoryColors: Record<CalendarEvent['category'], string> = {
   work: 'bg-blue-100 border-blue-200',
   personal: 'bg-yellow-100 border-yellow-200',
-  health: 'bg-pink-100 border-pink-200'
+  health: 'bg-pink-100 border-pink-200',
 };
+
 
 const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 

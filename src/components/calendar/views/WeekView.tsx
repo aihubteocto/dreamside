@@ -1,10 +1,10 @@
 import { CalendarEvent } from "@/lib/types";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { cn } from "@/lib/utils";
-import { AddEventDialog } from "../AddEventDialog";
+import { AddEventDialog } from "@/components/AddEventDialog";
 import { useState, useRef, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Plus } from "lucide-react";
 
 interface WeekViewProps {
   currentDate: Date;
@@ -13,10 +13,11 @@ interface WeekViewProps {
 
 const hours = Array.from({ length: 24 }, (_, i) => i);
 
-const categoryColors = {
-  work: 'bg-blue-100 border-blue-200',
-  personal: 'bg-yellow-100 border-yellow-200',
-  health: 'bg-pink-100 border-pink-200'
+const eventColors = {
+  work: 'blue',
+  personal: 'green',
+  health: 'purple',
+  other: 'orange'
 };
 
 export function WeekView({ currentDate, events }: WeekViewProps) {
@@ -30,7 +31,7 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const getEventsForDay = (date: Date) => {
-    return events.filter(event => format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd'));
+    return events.filter(event => isSameDay(event.start, date));
   };
 
   const getEventStyle = (event: CalendarEvent) => {
@@ -38,18 +39,14 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
     const startMinutes = event.start.getMinutes();
     const endHour = event.end.getHours();
     const endMinutes = event.end.getMinutes();
-    const duration = ((endHour * 60 + endMinutes) - (startHour * 60 + startMinutes)) / 60;
-    const top = `${(startHour * 60 + startMinutes) / 60 * 5}rem`;
-    const height = `${duration * 5}rem`;
+    
+    const top = (startHour + startMinutes / 60) * 80;
+    const height = ((endHour - startHour) + (endMinutes - startMinutes) / 60) * 80;
     
     return {
-      top,
-      height,
-      position: 'absolute',
-      left: '4px',
-      right: '4px',
-      zIndex: 10
-    } as React.CSSProperties;
+      top: `${top}px`,
+      height: `${height}px`,
+    };
   };
 
   const handleSlotClick = (date: Date, hour: number) => {
@@ -59,146 +56,141 @@ export function WeekView({ currentDate, events }: WeekViewProps) {
     setDialogOpen(true);
   };
 
-  const handleDayClick = (day: Date) => {
-    setSelectedDay(day);
-  };
-
-  // Scroll to current hour on mount
   useEffect(() => {
     if (scrollContainerRef.current) {
       const currentHour = new Date().getHours();
-      const scrollPosition = currentHour * 80; // Assuming each hour row is 5rem (80px)
       scrollContainerRef.current.scrollTo({
-        top: scrollPosition - 80, // Adjust to position current hour at the top
+        top: currentHour * 80 - 160,
         behavior: 'smooth'
       });
     }
   }, []);
 
   return (
-    <div className="flex-1 overflow-auto px-14 relative">
+    <div className="flex-1 overflow-hidden bg-white rounded-xl shadow-sm">
       {/* Header */}
-      <div className="grid grid-cols-8 gap-2 mb-4 relative z-10">
-        <div className="p-4 flex items-center justify-center">
-          <CalendarIcon className="w-6 h-6 text-secondary-dark" />
+      <div className="flex items-center px-6 py-4 ">
+        <div className="w-20 flex justify-center">
+          <CalendarIcon className="w-5 h-5 text-gray-500" />
         </div>
-        {weekDays.map((day) => {
-          const isSelected = selectedDay && isSameDay(day, selectedDay);
-          const isToday = isSameDay(day, new Date());
-          return (
-            <button
-              key={day.toString()}
-              onClick={() => handleDayClick(day)}
-              className={cn(
-                "py-4 px-2 text-center rounded-2xl font-medium transition-colors mb-5",
-                isSelected ? "text-secondary-dark" : "text-[#dccbc1] hover:bg-secondary/80",
-                isToday && !isSelected && "text-black"
-              )}
-            >
-              <div className="text-4xl font-bold">{format(day, 'd')}</div>
-              <div className="text-sm mb-1">{format(day, 'EEEE')}</div>
-            </button>
-          );
-        })}
+        <div className="grid grid-cols-7 flex-1 gap-4">
+          {weekDays.map((day) => {
+            const isToday = isSameDay(day, new Date());
+            const isSelected = selectedDay && isSameDay(day, selectedDay);
+            return (
+              <button
+                key={day.toString()}
+                onClick={() => setSelectedDay(day)}
+                className={cn(
+                  "flex flex-col items-center py-2 rounded-lg transition-colors",
+                  isSelected && "bg-primary/5",
+                  isToday && "bg-primary/5"
+                )}
+              >
+                <span className="text-sm font-medium">{format(day, 'EEE')}</span>
+                <span className={cn(
+                  "text-2xl font-semibold mt-1",
+                  isToday && "text-primary"
+                )}>
+                  {format(day, 'd')}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-      
-      {/* Main Grid with Scroll Reference */}
-      <div
-        className="grid grid-cols-8 rounded-3xl  h-[calc(100vh-16rem)] overflow-y-auto scrollbar-none relative z-10"
+
+      {/* Calendar Grid */}
+      <div 
         ref={scrollContainerRef}
+        className="calendar-grid h-[calc(100vh-16rem)] overflow-y-auto"
       >
-        {/* Hour Labels */}
-        <div className="p-10 pb-0">
+        {/* Time Column */}
+        <div className="time-column">
           {hours.map((hour) => (
             <div
               key={hour}
-              className="h-20 p-2 text-sm text-gray-500 font-outfit flex justify-end pr-4 border-gray-200"
+              className="h-20 flex items-center justify-end pr-4 text-sm text-gray-500"
             >
-              {`${hour}:00`}
-            </div>
+              {hour.toString().padStart(2, "0")}:00
+              </div>
           ))}
         </div>
-        
-        {/* Day Columns */}
-        {weekDays.map((day) => {
-          const isSelected = selectedDay && isSameDay(day, selectedDay);
-          return (
-            <div 
-              key={day.toString()} 
-              className={cn(
-                "relative px-10",
-                isSelected ? "bg-secondary" : ""
-              )}
-            >
-              {hours.map((hour) => (
-                <div
-                  key={hour}
-                  className="h-20 relative group "
-                >
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button 
-                        className="opacity-0 group-hover:opacity-100 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl text-primary w-6 h-6 rounded-full hover:bg-primary/10 flex items-center justify-center"
-                        onClick={() => handleSlotClick(day, hour)}
-                      >
-                        +
-                      </button>
-                    </PopoverTrigger>
-                    {selectedSlot && isSameDay(selectedSlot, day) && selectedSlot.getHours() === hour && (
-                      <PopoverContent className="w-80 p-0" align="start">
-                        <AddEventDialog 
-                          open={dialogOpen} 
-                          onOpenChange={setDialogOpen}
-                          defaultDate={selectedSlot}
-                        />
-                      </PopoverContent>
-                    )}
-                  </Popover>
-                </div>
-              ))}
-              {getEventsForDay(day).map((event) => (
-                <div
-                  key={event.id}
-                  style={getEventStyle(event)}
-                  className={cn(
-                    "rounded-lg p-2 mt-14 border text-sm overflow-hidden",
-                    categoryColors[event.category]
-                  )}
-                >
-                  <div className="font-medium">{event.title}</div>
-                  <div className="text-xs text-gray-600">
-                    {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
-                  </div>
-                  {event.location && (
-                    <div className="text-xs text-gray-600">{event.location}</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          );
-        })}
-      </div>
-      {/* Extra Row with 2 Columns */}
-      {/* <div className="grid grid-cols-2 gap-4 mt-4 mb-4">
-        <div className="p-4 bg-white rounded-lg shadow">
-          <h2 className="text-lg font-semibold">Column 1</h2>
-          <p>Additional information or components can go here.</p>
-          <p>Additional information or components can go here.</p>
-          <p>Additional information or components can go here.</p>
-          <p>Additional information or components can go here.</p>
 
-          <p>Additional information or components can go here.</p>
-          <p>Additional information or components can go here.</p>
-          <p>Additional information or components can go here.</p>
-          <p>Additional information or components can go here.</p>
-          <p>Additional information or components can go here.</p>
-          
-        </div>
-        <div className="p-4 bg-white rounded-lg shadow">
-          <h2 className="text-lg font-semibold">Column 2</h2>
-          <p>Additional information or components can go here.</p>
-        </div>
-      </div> */}
+        {/* Day Columns */}
+        {weekDays.map((day) => (
+          <div 
+            key={day.toString()} 
+            className={cn(
+              "relative",
+              selectedDay && isSameDay(day, selectedDay) && "bg-primary/5"
+            )}
+          >
+            {/* Hour cells */}
+            {hours.map((hour) => (
+              <div
+                key={hour}
+                className="h-20 border-t border-gray-100 relative group "
+                onClick={() => handleSlotClick(day, hour)}
+              >
+                <button className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+            ))}
+
+            {/* Events */}
+            {getEventsForDay(day).map((event) => (
+              <div
+                key={event.id}
+                style={getEventStyle(event)}
+                className={cn(
+                  "event-card",
+                  eventColors[event.category] || 'blue'
+                )}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-medium text-sm">{event.title}</h3>
+                  {event.category && (
+                    <span className="event-tag">
+                      {event.category}
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-gray-600 mb-2">
+                  {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+                </div>
+                {event.location && (
+                  <div className="text-xs text-gray-600 mb-2">
+                    📍 {event.location}
+                  </div>
+                )}
+                {event.attendees && (
+                  <div className="avatar-group">
+                    {event.attendees.map((attendee, i) => (
+                      <img
+                        key={i}
+                        src={attendee.avatar || '/placeholder.svg'}
+                        alt={attendee.name}
+                        title={attendee.name}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Add Event Dialog */}
+      {selectedSlot && (
+        <AddEventDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          defaultDate={selectedSlot}
+        />
+      )}
     </div>
   );
 }

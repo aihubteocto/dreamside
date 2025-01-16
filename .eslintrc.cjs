@@ -4,7 +4,9 @@ const config = {
   parserOptions: {
     project: "./tsconfig.json", // Ensure the path to tsconfig.json is correct
   },
- 
+  plugins: [
+    "@typescript-eslint", // Plugins should be strings
+  ],
   extends: [
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended",
